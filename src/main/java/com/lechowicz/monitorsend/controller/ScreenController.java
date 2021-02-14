@@ -31,8 +31,8 @@ public class ScreenController {
         int x = MouseInfo.getPointerInfo().getLocation().x;
         int y = MouseInfo.getPointerInfo().getLocation().y;
 
-        ClassPathResource imgFile = new ClassPathResource("cursors/arrow.gif");
-        Image cursor = ImageIO.read(imgFile.getFile());
+        var imgFile = getClass().getResourceAsStream("/cursors/arrow.gif");
+        Image cursor = ImageIO.read(imgFile);
         fullScreenImage.getGraphics().drawImage(cursor, x, y, null);
 
         var byteArrayOutputStream = new ByteArrayOutputStream();
