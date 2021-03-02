@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.*;
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletResponse;
 import java.awt.*;
+import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorConvertOp;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -17,28 +19,33 @@ import java.io.IOException;
 @RestController
 public class ScreenController {
     final ScreenService screenService;
+    final Image cursorImage;
+    final Rectangle areaOfScreenshot;
 
-    public ScreenController(ScreenService screenService){
+    public ScreenController(ScreenService screenService) throws IOException {
         this.screenService = screenService;
+        this.cursorImage = screenService.getCursor();
+        this.areaOfScreenshot = screenService.getAreaOfScreenshot();
     }
 
     @RequestMapping(value = "/image", method = RequestMethod.GET,
             produces = MediaType.IMAGE_JPEG_VALUE)
     public void getImage(HttpServletResponse response) throws IOException {
-
-        BufferedImage fullScreenImage = this.screenService.getFullScreen();
+        long startTime = System.currentTimeMillis();
+        BufferedImage fullScreenImage = this.screenService.getFullScreen(this.areaOfScreenshot);
 
         int x = MouseInfo.getPointerInfo().getLocation().x;
         int y = MouseInfo.getPointerInfo().getLocation().y;
 
-        var imgFile = getClass().getResourceAsStream("/cursors/arrow.gif");
-        Image cursor = ImageIO.read(imgFile);
-        fullScreenImage.getGraphics().drawImage(cursor, x, y, null);
+        fullScreenImage.getGraphics().drawImage(cursorImage, x, y, null);
 
         var byteArrayOutputStream = new ByteArrayOutputStream();
-        ImageIO.write(fullScreenImage, "png", byteArrayOutputStream);
+        ImageIO.write(fullScreenImage, "jpg", byteArrayOutputStream);
 
         response.setContentType(MediaType.IMAGE_JPEG_VALUE);
         StreamUtils.copy(byteArrayOutputStream.toByteArray(), response.getOutputStream());
+
+        long endTime = System.currentTimeMillis();
+        System.out.println(endTime - startTime);
     }
 }

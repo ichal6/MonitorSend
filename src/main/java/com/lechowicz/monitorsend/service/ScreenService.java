@@ -2,8 +2,10 @@ package com.lechowicz.monitorsend.service;
 
 import org.springframework.stereotype.Service;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 
 @Service
 public class ScreenService {
@@ -17,8 +19,16 @@ public class ScreenService {
         this.robot = new Robot();
     }
 
-    public BufferedImage getFullScreen(){
-        Rectangle screenRect = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
-        return this.robot.createScreenCapture(screenRect);
+    public Image getCursor() throws IOException {
+        var imgFile = getClass().getResourceAsStream("/cursors/arrow.gif");
+        return ImageIO.read(imgFile);
+    }
+
+    public BufferedImage getFullScreen(Rectangle areaOfScreenshot){
+        return this.robot.createScreenCapture(areaOfScreenshot);
+    }
+
+    public Rectangle getAreaOfScreenshot(){
+        return new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
     }
 }
